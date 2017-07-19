@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.example.demo.mapper.StudentMapper">
+
+    <!-- type为实体类Student-->
+    <resultMap id="stuMap" type="com.example.demo.dao.Student">
+        <id property="id" column="id" jdbcType="VARCHAR"/>
+        <result property="name" column="name" jdbcType="VARCHAR"/>
+        <result property="age" column="age" jdbcType="INTEGER"/> <!--数据类型必须大写成类名，不能写成int-->
+    </resultMap>
+
+    <select id="getById" resultMap="stuMap">
+        SELECT *
+        FROM student
+        WHERE id = #{id}
+    </select>
+
+    <select id="likeName" resultMap="stuMap" parameterType="string">
+        SELECT *
+        FROM student
+        WHERE NAME LIKE CONCAT('%',#{name},'%')
+    </select>
+
+    <select id="getNameById" parameterType="string" resultType="string">
+        SELECT NAME
+        FROM student
+        WHERE id = #{id}
+    </select>
+
+    <delete id="deleteById"  parameterType="string">
+        DELETE FROM student WHERE id=#{id}
+    </delete>
+
+    <update id="updateById" parameterType="StudentBean">
+        UPDATE student
+        <set >
+            <if test="name!=null"> name=#{name},</if>
+            <if test="age!=null"> age=#{age},</if>
+        </set>
+        where id=#{id}
+    </update>
+
+    <select id="getAllStudents" resultMap="stuMap">
+        SELECT *
+        FROM student
+    </select>
+
+    <insert id="insertStudent">
+        INSERT INTO  student VALUES (#{id},#{name},#{age})
+    </insert>
+
+</mapper>

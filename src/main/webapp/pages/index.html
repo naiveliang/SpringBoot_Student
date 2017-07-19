@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>通过页面操作数据库</title>
+    <script src="../js/jquery.js"></script> <!--   必须的两个script配对，不能写成<script..../>这种形式    -->
+
+    <!-- 放在这里的函数比放在body里面的函数多一个层，因为head里面的代码比body里面的代码先执行，
+        则等到body里面的代码执行时，这里的代码已经执行过了，当点击按钮时，就不再响应了
+    -->
+    <!--<script type="text/javascript">-->
+        <!--$(function(){-->
+            <!--$("button#searchButton").click(-->
+            <!--function(){-->
+                <!--var str = $("#searchId").val();-->
+                <!--if(null==str || str.length==0 ){//str.length在判断str为空时，很重要-->
+                    <!--$("#searchResult").text("请输入正确的id");-->
+                    <!--return;-->
+                <!--}-->
+                <!--$.ajax({-->
+                    <!--type: "GET",-->
+                    <!--url: "/getNameById/" + str,-->
+                    <!--//data: str,-->
+                    <!--success: function (msg) {-->
+                        <!--if (msg == null || msg.length==0) msg = "此学生不存在！";-->
+                        <!--$("#searchResult").text(msg);-->
+                    <!--}-->
+                <!--});-->
+            <!--})-->
+        <!--});-->
+    <!--</script>-->
+
+
+
+
+
+
+
+</head>
+<body>
+    <div style="height: 50pt">
+        请输入想要查询学生的id：<input type="text" id="searchId">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <!--<button type="button" onclick="showResult(document.getElementById('searchId').value,'1')">查询</button> <span id="searchResult"></span>-->
+        <button type="button" id="searchButton" >查询</button> <br><span id="searchResult"></span>
+    </div>
+    <div style="height: 50pt">
+        请输入想要删除学生的id：<input type="text" name="deleteId" id="deleteId">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" id="deleteButton">删除</button> <span id="deleteResult"></span>
+    </div>
+    <div style="height: 100pt">
+        请输入想要插入学生的：<br>
+        id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <input type="text" id="insertId"><br>
+        name : <input type="text" id="insertName"><br>
+        age &nbsp;&nbsp;&nbsp;: <input type="text" id="insertAge">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" id="insertButton">插入</button> <span id="insertResult"></span><button type="button" id="clearInsertContext">清空</button>
+    </div>
+    <div style="height: 100pt">
+        请输入想要修改学生的：<br>
+        id &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;: <input type="text" id="updateId"><br>
+        name : <input type="text" id="updateName"><br>
+        age &nbsp;&nbsp;&nbsp;: <input type="text" id="updateAge">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+        <button type="button" id="updateButton">修改</button> <span id="updateResult"></span>
+    </div>
+    <button type="button" id="searchAllButton">查询所有</button> <br><br><span id="searchAllResults"></span>
+    <div id="searchAllDiv" style="height: 50pt">
+
+    </div>
+
+
+    <!--  查询   -->
+    <script type="text/javascript">
+        $("button#searchButton").click(
+            function(){
+                var str = $("#searchId").val();
+                if(null==str || str.length==0 ){//str.length在判断str为空时，很重要
+                    $("#searchResult").text("请输入正确的id");
+                    return;
+                }
+                $.ajax({
+                    type: "GET",
+                    url: "/getNameById/" + str,
+                    //data: str,
+                    success: function (msg) {
+                        if (msg == null || msg.length==0) msg = "此学生不存在！";
+                        $("#searchResult").text(msg);
+                    }
+                });
+            });
+    </script>
+
+    <!--  删除   -->
+    <script type="text/javascript">
+        $("button#deleteButton").click(
+            function(){
+                var str = $("#deleteId").val();
+                if(str.length==0 ){//str.length在判断str为空时，很重要
+                    $("#deleteResult").text("请输入正确的id");
+                    return;
+                }
+                $.ajax({
+                    type: "GET",
+                    url: "/deleteById/" + str,
+                    //data: str,
+                    success: function (msg) {
+                        if (msg == 0) $("#deleteResult").text("此学生不存在！");
+                        else $("#deleteResult").text("删除成功！");
+                    }
+                });
+            });
+    </script>
+
+    <!--  插入   -->
+    <script type="text/javascript">
+        $("button#insertButton").click(
+            function(){
+                var id = $("#insertId").val();
+                var name = $("#insertName").val();
+                var age = $("#insertAge").val();
+                if(id.length==0 || name.length==0 || age.length==0){//str.length在判断str为空时，很重要
+                    $("#insertResult").text("输入不能为空！");
+                    return;
+                }
+                var stu = {};
+                stu.id = id;
+                stu.name = name;
+                stu.age = age;
+                $.ajax({
+                    type: "put",
+                    url: "/insertStudent",
+                    data: JSON.stringify(stu),
+                    contentType:"application/json",
+                    success: function (msg) {
+                        if (msg=="0" || msg==0){
+                            $("#insertResult").text("此学生已存在！");
+                            return;
+                        }else{
+                            $("#insertResult").text("插入成功！");
+                        }
+
+                    }
+                });
+            });
+    </script>
+
+    <!--  清空   -->
+    <script type="text/javascript">
+        $("button#clearInsertContext").click(
+            function(){
+                $("#insertId").val("");
+                $("#insertName").val("");
+                $("#insertAge").val("");
+            });
+    </script>
+
+
+    <!--  修改   -->
+    <script type="text/javascript">
+        $("button#updateButton").click(
+            function(){
+                var id = $("#updateId").val();
+                var name = $("#updateName").val();
+                var age = $("#updateAge").val();
+                if(id.length==0){//str.length在判断str为空时，很重要
+                    $("#updateResult").text("id输入不能为空！");
+                    return;
+                }
+                var stu = {};
+                stu.id = id;
+                stu.name = name;
+                stu.age = age;
+                $.ajax({
+                    type: "put",
+                    url: "/updateById",
+                    data: JSON.stringify(stu),
+                    contentType:"application/json",
+                    success: function (msg) {
+                        if (msg==0)  $("#updateResult").text("此学生不存在！");
+                        else $("#updateResult").text("修改成功！");
+                    }
+                });
+            });
+    </script>
+
+    <!--  查询所有   -->
+    <script type="text/javascript">
+        $("button#searchAllButton").click(
+            function(){
+                if($("#searchAllDiv").text()!=null)$("#searchAllDiv").text("");
+
+                $.ajax({
+                    type: "GET",
+                    url: "/getAllStudents",
+                    //data: str,
+                    success: function (msg) {
+                        if(msg){
+                            $.each(msg,function(key,value){
+                                var tmp = "<table border='1pt'><tr><td width='50pt'>"+value.id+"</td><td width='150pt'>"+value.name+"</td><td width='50pt'>"+value.age+"</td></tr></table>";
+                                $("#searchAllDiv").append(tmp);
+                            })
+                        }
+                    }
+                });
+            });
+    </script>
+</body>
+</html>
